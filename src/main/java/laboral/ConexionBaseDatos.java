@@ -23,14 +23,15 @@ public class ConexionBaseDatos {
 	}
 
 	public void conectar() throws SQLException {
-		try {
-			Class.forName("com.oracle.jdbc.Driver");
-		}catch(Exception e) {
-			System.out.println("Error");
-		}
+		if (conn.isClosed() || conn == null) {
+			try {
+				Class.forName("com.oracle.jdbc.Driver");
+			} catch (Exception e) {
+				System.out.println("Error");
+			}
 			conn = DriverManager.getConnection(url, user, pass);
 		}
-	
+	}
 
 	public void desconectar() throws SQLException {
 		if (!conn.isClosed() && conn != null) {

@@ -80,7 +80,7 @@ public class Empleado extends Persona {
 	 * Metodo que imprime todas las propiedades de Empleado
 	 */
 	public void imprime() {
-		System.out.println("Nombre: " + nombre + ", dni: " + dni + ", categoria: " + categoria + ", años: " + anyos);
+		System.out.println("Nombre: " + nombre + ", dni: " + dni + ", categoria: " + categoria + ", aÃ±os: " + anyos);
 	}
 
 }
