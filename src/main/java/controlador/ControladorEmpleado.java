@@ -4,6 +4,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dao.EmpleadoBaseDatos;
+import excepcion.DatosNoCorrectosException;
+import modulo.Empleado;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -11,31 +15,17 @@ import java.util.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import laboral.Empleado;
-import laboral.EmpleadoBaseDatos;
-import laboral.DatosNoCorrectosException;
 
 @WebServlet("/Controller")
 public class ControladorEmpleado extends HttpServlet {
 	private static final long serialVersionUID = 1234567L;
-	EmpleadoBaseDatos empBD;
 
 	public ControladorEmpleado() {
 		super();
 	}
 
-	public void init() throws ServletException {
-		String url = getServletContext().getInitParameter("url");
+	public void init() {
 
-		String user = getServletContext().getInitParameter("user");
-
-		String pass = getServletContext().getInitParameter("pass");
-
-		try {
-			empBD = new EmpleadoBaseDatos(url, user, pass);
-		} catch (SQLException e) {
-			System.out.println("Error");
-		}
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -43,11 +33,14 @@ public class ControladorEmpleado extends HttpServlet {
 		String respuesta = request.getParameter("opcion");
 
 		switch (respuesta) {
-		case "MostrarEmpleados":
+		case "MostrarEmpleados": {
+
 			try {
 				List<Empleado> listaEmpleados = new ArrayList<>();
 
-				listaEmpleados = empBD.devolverEmpleados();
+				EmpleadoBaseDatos empbd = new EmpleadoBaseDatos();
+
+				listaEmpleados = empbd.devolverEmpleados();
 
 				request.setAttribute("listaEmpleados", listaEmpleados);
 
@@ -55,48 +48,64 @@ public class ControladorEmpleado extends HttpServlet {
 
 				requesDispatcher.forward(request, response);
 			} catch (SQLException e) {
-				System.out.println("Error");
+				System.out.println("Error en la base de datos");
 			} catch (DatosNoCorrectosException e) {
-				System.out.println("Error");
+				System.out.println("Error: datos del emmpleados no correctos");
 			}
 			break;
-		case "MostrarSalario":
-			try {
-				String dniVar = request.getParameter("dniVar");
+		}
 
-				Map<String, Integer> salario = new HashMap<String, Integer>();
+		case "BuscaEmpleadoDNI": {
 
-				salario = empBD.mostrarSalario(dniVar);
-				
-				request.setAttribute("salario", salario);
+			RequestDispatcher requesDispatcher = request.getRequestDispatcher("webs/BuscaEmpleadoDNI.jsp");
 
-				RequestDispatcher requesDispatcher = request.getRequestDispatcher("webs/MostrarSalario.jsp");
+			requesDispatcher.forward(request, response);
 
-				requesDispatcher.forward(request, response);
-
-			} catch (SQLException e) {
-				System.out.println("Error");
-			} catch (DatosNoCorrectosException e) {
-				System.out.println("Error");
-			}
-			break;
-		case "SalarioEmpleado":
-			try {
-				RequestDispatcher requesDispatcher = request.getRequestDispatcher("webs/SalarioEmpleado.jsp");
-
-				requesDispatcher.forward(request, response);
-			} catch (Exception e) {
-				System.out.println("Error");
-			}
 			break;
 
+		}
 		default:
-			break;
+			throw new IllegalArgumentException("Unexpected value: " + respuesta);
 		}
 
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doGet(request, response);
+
+		String respuesta = request.getParameter("opcion");
+
+		switch (respuesta) {
+		case "MuestraEmpleadoDNI": {
+
+			String dniVar = request.getParameter("dniVar");
+
+			EmpleadoBaseDatos empbd = new EmpleadoBaseDatos();
+
+			Empleado e;
+			try {
+				e = empbd.mostrarSalario(dniVar);
+				
+				request.setAttribute("empleado", e);
+				
+				int sueldo = EmpleadoBaseDatos.getSueldo(dniVar);
+				request.setAttribute("sueldo", sueldo);
+				
+				
+
+			} catch (SQLException | DatosNoCorrectosException e1) {
+				e1.printStackTrace();
+			}
+
+
+			RequestDispatcher requesDispatcher = request.getRequestDispatcher("webs/MuestraEmpleadoDNI.jsp");
+
+			requesDispatcher.forward(request, response);
+
+			break;
+		}
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + respuesta);
+		}
+
 	}
 }

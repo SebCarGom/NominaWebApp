@@ -6,7 +6,6 @@
 </head>
 <body>
    <a href="Controller?opcion=MostrarEmpleados"> Empleados </a>
-   <a href="Controller?opcion=MostrarSalario"> Salarios </a>
-   <a href="Controller?opcion=SalarioEmpleado"> SalarioDNI </a>
+   <a href="Controller?opcion=BuscaEmpleadoDNI"> SalarioDNI </a>
 </body>
 </html>
